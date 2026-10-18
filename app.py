@@ -35,9 +35,10 @@ def run_detection(camera_index=0, ear_threshold=0.22, consecutive_frames=15):
     eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 
     sleep_counter = 0
+    missing_face_counter = 0
     drowsy_counter = 0
     active_counter = 0
-    status = "Active"
+    status = "Driver Status: Alert"
     color = (0, 255, 0)
 
     try:
@@ -49,6 +50,14 @@ def run_detection(camera_index=0, ear_threshold=0.22, consecutive_frames=15):
             frame = cv2.flip(frame, 1)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             faces = face_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(100, 100))
+
+            if len(faces) == 0:
+                missing_face_counter += 1
+                if missing_face_counter > consecutive_frames:
+                    status = "WARNING: NO FACE DETECTED"
+                    color = (0, 0, 255)
+            else:
+                missing_face_counter = 0
 
             for (x, y, w, h) in faces:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (200, 200, 200), 2)
