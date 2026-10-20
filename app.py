@@ -59,8 +59,14 @@ def run_detection(camera_index=0, ear_threshold=0.22, consecutive_frames=15):
             else:
                 missing_face_counter = 0
 
-            for (x, y, w, h) in faces:
-                cv2.rectangle(frame, (x, y), (x + w, y + h), (200, 200, 200), 2)
+                # Select primary driver face (largest detected bounding box) to prevent counter inflation
+                driver_face = max(faces, key=lambda b: b[2] * b[3])
+                for (fx, fy, fw, fh) in faces:
+                    is_primary = (fx, fy, fw, fh) == tuple(driver_face)
+                    box_color = (0, 255, 255) if is_primary else (200, 200, 200)
+                    cv2.rectangle(frame, (fx, fy), (fx + fw, fy + fh), box_color, 2)
+
+                x, y, w, h = driver_face
                 roi_gray = gray[y:y + h, x:x + w]
                 roi_color = frame[y:y + h, x:x + w]
 
