@@ -30,9 +30,12 @@ def run_detection(camera_index=0, ear_threshold=0.22, consecutive_frames=15):
         print(f"Error: Unable to access camera at index {camera_index}")
         return
 
-    # Load face and eye cascades
+    # Load face and eye cascades with verification
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
+
+    if face_cascade.empty() or eye_cascade.empty():
+        raise RuntimeError("Failed to load OpenCV Haar Cascade XML models from cv2.data.haarcascades.")
 
     sleep_counter = 0
     missing_face_counter = 0
